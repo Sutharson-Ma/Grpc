@@ -1,0 +1,63 @@
+#Importan note before starting the nginx port you want move your  path to file 
+location of nginx.aplication  
+
+#Another importan note before start in the nginx folder you see 
+(inside conf)conf--->nginx(nginx.conf) folder its extention was .conf
+
+
+* You need to edit according to your how many server you are going to run inside the http inside upstream grpcservers tag
+
+Example::
+	events 
+	{
+	}
+	
+	http
+	 {
+    		client_max_body_size 5000m;
+
+   		upstream grpcservers 	
+			{
+        			ip_hash;
+        			server 10.92.56.70:50051;
+        			server 10.92.56.70:50052;
+				server 10.92.56.70:50053;
+    			}
+
+    		server 
+		       {
+        			listen 10.92.56.70:50050 http2;
+
+        			location / 
+					{
+            					grpc_pass grpc://grpcservers;
+        				}
+    			}
+	}
+
+	
+
+
+#To start the nginx loadBalancer server
+start nginx
+
+
+#To Find out the what the server are Running
+tasklist /fi "imagename eq nginx.exe"
+
+EX:
+Image Name                     PID Session Name        Session#    Mem Usage
+========================= ======== ================ =========== ============
+nginx.exe                     4952 Console                    3      9,924 K
+nginx.exe                    24276 Console                    3     10,172 K
+
+
+#To find out what is running on that particular port
+netstat -ano | findstr :50050
+
+
+#To stop the nginx loadBalancer server
+nginx.exe -s stop
+
+#To run client or app2
+java -Xms256m -Xmx12g -jar App2loadbalanertest_nginx.jar
